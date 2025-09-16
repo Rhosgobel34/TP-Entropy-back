@@ -1,0 +1,6 @@
+@TP_Entropy_back_HostAddress = http://localhost:5149
+
+GET {{TP_Entropy_back_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
