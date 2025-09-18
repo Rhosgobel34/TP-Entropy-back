@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 
 namespace TP_Entropy_back
 {
@@ -6,6 +7,11 @@ namespace TP_Entropy_back
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(connectionString));
 
             // Add services to the container.
 
@@ -16,6 +22,13 @@ namespace TP_Entropy_back
 
             var app = builder.Build();
 
+            // Run migration
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.Migrate();
+            }
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -23,10 +36,8 @@ namespace TP_Entropy_back
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
+            //app.UseHttpsRedirection();
+            //app.UseAuthorization();
 
             app.MapControllers();
 

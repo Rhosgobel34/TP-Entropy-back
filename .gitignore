@@ -57,8 +57,9 @@ ipch/
 *.vsp
 *.vspx
 
-# Visual Studio Code coverage results
-*.vs
+# Visual Studio Code
+.vs/
+.vscode/
 
 # Guidance Automation Toolkit
 *.gpState
