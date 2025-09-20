@@ -23,11 +23,5 @@ namespace TP_Entropy_back.Model
         [Column("Email")]
         [Required]
         public string Email { get; set; }
-
-        [Column("CreatedAt")]
-        public DateTime CreatedAt { get; set; }
-
-        [Column("LastUpdated")]
-        public DateTime LastUpdated { get; set; }
     }
 }
