@@ -55,9 +55,9 @@ namespace TP_Entropy_back.Controllers
         }
 
         [HttpGet("verify_token")]
-        public IActionResult VerifyToken([FromBody] TokenRequest request)
+        public IActionResult VerifyToken([FromBody] TokenRequest token)
         {
-            if (string.IsNullOrEmpty(request.Token))
+            if (string.IsNullOrEmpty(token.Token))
                 return BadRequest(new { verified = false, error = "Token is required." });
 
             try
@@ -65,7 +65,7 @@ namespace TP_Entropy_back.Controllers
                 JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
                 byte[] key = Encoding.UTF8.GetBytes(_config["JWT:Key"]);
 
-                tokenHandler.ValidateToken(request.Token, new TokenValidationParameters
+                tokenHandler.ValidateToken(token.Token, new TokenValidationParameters
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
