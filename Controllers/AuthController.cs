@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,7 +12,7 @@ namespace TP_Entropy_back.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : Controller
+    public class AuthController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
         private readonly ILogger _logger;
@@ -54,10 +55,10 @@ namespace TP_Entropy_back.Controllers
             return Ok(new { token = jwtToken });
         }
 
-        [HttpGet("verify_token")]
-        public IActionResult VerifyToken([FromBody] TokenRequest token)
+        [HttpPost("verify_token")]
+        public IActionResult VerifyToken([FromBody] TokenRequest request)
         {
-            if (string.IsNullOrEmpty(token.Token))
+            if (string.IsNullOrEmpty(request.Token))
                 return BadRequest(new { verified = false, error = "Token is required." });
 
             try
@@ -65,7 +66,7 @@ namespace TP_Entropy_back.Controllers
                 JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
                 byte[] key = Encoding.UTF8.GetBytes(_config["JWT:Key"]);
 
-                tokenHandler.ValidateToken(token.Token, new TokenValidationParameters
+                tokenHandler.ValidateToken(request.Token, new TokenValidationParameters
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
