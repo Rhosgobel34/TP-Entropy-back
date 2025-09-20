@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TP_Entropy_back.Model;
+using TP_Entropy_back.Repositories;
 
 namespace TP_Entropy_back.Controllers
 {
@@ -8,33 +10,31 @@ namespace TP_Entropy_back.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IUserRepository _userRepository;
         private readonly ILogger _logger;
 
-        public UserController(AppDbContext context)
+        public UserController(IUserRepository userRepository, ILogger<UserController> logger)
         {
-            _context = context;
+            _userRepository = userRepository;
+            _logger = logger;
         }
 
+        [Authorize]
         [HttpGet("usernames")]
         public async Task<ActionResult<IEnumerable<string>>> GetUsernames()
         {
-            var usernames = await _context.Users
-                .Select(u => u.Username)
-                .ToListAsync();
-
-            return Ok(usernames);
+            IEnumerable<User> usernames = await _userRepository.GetAllAsync();
+            return Ok(usernames.Select(u => u.Username));
         }
 
         [HttpGet("{username}")]
         public async Task<ActionResult<User>> GetUserByUsername(string username)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == username);
+            User? user = await _userRepository.GetByUsernameAsync(username);
+            
             if (user == null)
-            {
                 return NotFound();
-            }
+
             return Ok(user);
         }
 
@@ -45,25 +45,19 @@ namespace TP_Entropy_back.Controllers
             {
                 return BadRequest("Invalid user data.");
             }
-            newUser.CreatedAt = DateTime.UtcNow;
-            newUser.LastUpdated = DateTime.UtcNow;
-            newUser.Username = newUser.Username.ToLower();
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetUserByUsername), new { username = newUser.Username }, newUser);
+
+            User createdUser = await _userRepository.CreateAsync(newUser);
+            return CreatedAtAction(nameof(GetUserByUsername), new { username = createdUser.Username }, createdUser);
         }
 
-        [HttpDelete("{username}")]
-        public async Task<IActionResult> DeleteUser(string username)
+        [Authorize]
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == username.ToLower());
-            if (user == null)
-            {
+            var deleted = await _userRepository.DeleteAsync(id);
+            if (!deleted)
                 return NotFound();
-            }
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }
