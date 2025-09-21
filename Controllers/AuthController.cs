@@ -82,5 +82,12 @@ namespace TP_Entropy_back.Controllers
                 return Unauthorized(new { verified = false });
             }
         }
+
+        [HttpPost("check_password")]
+        public IActionResult CheckPassword([FromBody] string password)
+        {
+            var result = Services.PasswordEstimator.Evaluate(password);
+            return Ok(result);
+        }
     }
 }
