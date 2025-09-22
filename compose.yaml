@@ -1,0 +1,35 @@
+volumes:
+  EntropyBackVolume:
+
+services:
+  entropy-back:
+    build: .
+    container_name: entropy-back
+    ports:
+      - "5000:8080"
+    env_file:
+      - ./.env
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - entropyback_network
+      - symfony-network
+
+  PostgresService:
+    image: postgres:15
+    container_name: PostgresContainer
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: tpentropydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - EntropyBackVolume:/var/lib/postgresql/data
+    networks:
+      - entropyback_network
+
+networks:
+  entropyback_network:
+    driver: bridge
+  symfony-network:
+    external: true

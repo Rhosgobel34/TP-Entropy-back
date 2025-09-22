@@ -79,7 +79,7 @@ namespace TP_Entropy_back.Controllers
             }
             catch
             {
-                return Unauthorized(new { verified = false });
+                return Ok(new { verified = false });
             }
         }
 

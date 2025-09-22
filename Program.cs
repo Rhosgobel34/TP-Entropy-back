@@ -47,8 +47,19 @@ namespace TP_Entropy_back
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddCors(options => {
+                    options.AddPolicy("AllowFrontend", policy =>
+                    {
+                        policy.WithOrigins("http://localhost")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+                }
+            );
 
             WebApplication app = builder.Build();
+
+            app.UseCors("AllowFrontend");
 
             // Run migration
             using (IServiceScope scope = app.Services.CreateScope())
