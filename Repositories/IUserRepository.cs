@@ -1,4 +1,5 @@
 ﻿using TP_Entropy_back.Model;
+using TP_Entropy_back.DTOs;
 
 namespace TP_Entropy_back.Repositories
 {
@@ -6,7 +7,7 @@ namespace TP_Entropy_back.Repositories
     {
         Task<IEnumerable<User>> GetAllAsync();
         Task<User?> GetByUsernameAsync(string username);
-        Task<User> CreateAsync(User user);
+        Task<User> CreateAsync(RegisterRequest user);
         Task<bool> DeleteAsync(int id);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TP_Entropy_back.Model;
+using TP_Entropy_back.DTOs;
 
 namespace TP_Entropy_back.Repositories
 {
@@ -22,13 +23,20 @@ namespace TP_Entropy_back.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == username.ToLower());
         }
 
-        public async Task<User> CreateAsync(User user)
+        public async Task<User> CreateAsync(RegisterRequest user)
         {
             user.Username = user.Username.ToLower();
 
-            _context.Users.Add(user);
+            User newUser = new User
+            {
+                Username = user.Username,
+                Password = user.Password,
+                Email = user.Email
+            };
+
+            _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
-            return user;
+            return newUser;
         }
 
         public async Task<bool> DeleteAsync(int id)
